@@ -77,7 +77,7 @@ docker run -it \
 
 6. For uploading of zones dictionary use script `upload_zones.py`.
 
-## Question 3—6
+## Questions 3—6
 
 SQL-queries that help to ind answers in the file `questions_3-6.sql`.
 
