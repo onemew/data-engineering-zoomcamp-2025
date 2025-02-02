@@ -1,5 +1,5 @@
 -- question #3
--- answer: 104,838; 199,013; 109,645; 27,688; 35,202
+-- answer: 104802; 198924; 109603; 27678; 35189
 SELECT
     CASE
         WHEN trip_distance <= 1 THEN  'up_to_1_mile'
@@ -10,6 +10,8 @@ SELECT
     END as trip_distance_category,
     COUNT(1)
 FROM trips
+WHERE lpep_pickup_datetime::date BETWEEN '2019-10-01' AND '2019-10-31'
+        AND lpep_dropoff_datetime::date BETWEEN '2019-10-01' AND '2019-10-31'
 GROUP BY 1
 ORDER BY 1
 ;
@@ -20,10 +22,10 @@ WITH trips_with_duration AS (
     SELECT
         lpep_pickup_datetime::date AS lpep_pickup_date,
         CASE
-        	WHEN lpep_dropoff_datetime::date > lpep_pickup_datetime::date
-        		THEN (lpep_pickup_datetime::date::timestamp + interval '1' day
-        				- lpep_pickup_datetime)
-        	ELSE (lpep_dropoff_datetime - lpep_pickup_datetime)
+            WHEN lpep_dropoff_datetime::date > lpep_pickup_datetime::date
+                THEN (lpep_pickup_datetime::date::timestamp + interval '1' day
+                        - lpep_pickup_datetime)
+            ELSE (lpep_dropoff_datetime - lpep_pickup_datetime)
         END  AS trip_duration
     FROM trips
 ),
@@ -35,7 +37,7 @@ longest_trips AS (
     GROUP BY 1
 )
 SELECT
-	lpep_pickup_date
+    lpep_pickup_date
 FROM longest_trips
 WHERE trip_duration IN (
         SELECT MAX(trip_duration) FROM longest_trips)
@@ -63,7 +65,7 @@ ORDER BY zone_name
 
 
 -- question #6
--- answer: East Harlem North
+-- answer: JFK Airport
 WITH do_zones_with_tip_amount AS (
     SELECT
         doz."Zone" AS do_zone_name,
@@ -71,9 +73,11 @@ WITH do_zones_with_tip_amount AS (
     FROM trips as t
     INNER JOIN zones AS puz
         ON t."PULocationID" = puz."LocationID"
-        AND puz."Zone" = 'East Harlem North'
     INNER JOIN zones AS doz
-        ON t."PULocationID" = doz."LocationID"
+        ON t."DOLocationID" = doz."LocationID"
+    WHERE
+        t.lpep_pickup_datetime::date BETWEEN '2019-10-01' AND '2019-10-31'
+        AND puz."Zone" = 'East Harlem North'
 )
 SELECT
     do_zone_name
@@ -82,4 +86,3 @@ WHERE tip_amount = (
     SELECT MAX(tip_amount)
     FROM do_zones_with_tip_amount)
 ;
-
